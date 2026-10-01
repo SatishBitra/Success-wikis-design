@@ -1,0 +1,6 @@
+{
+  "name": "Success Wikis",
+  "description": "Editorial storytelling and success wikis profiling founders, innovators, and creators.",
+  "version": "1.0.0",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
