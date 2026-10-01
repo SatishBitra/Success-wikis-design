@@ -1,17 +1,37 @@
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Play } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { SWButton } from "@/components/sw/sw-button";
-import { heroSlides } from "@/lib/content";
+import { heroSlides, stories } from "@/lib/content";
 import { cn } from "@/lib/utils";
+
+function SurpriseIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className="size-4 shrink-0 transition-transform duration-500 ease-out group-hover:rotate-90 group-hover:scale-110"
+    >
+      <path d="M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4L12 0Z" />
+    </svg>
+  );
+}
 
 export function Hero() {
   const [index, setIndex] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const id = window.setInterval(() => setIndex((i) => (i + 1) % heroSlides.length), 6000);
     return () => window.clearInterval(id);
   }, []);
+
+  const handleSurprise = () => {
+    const pick = stories[Math.floor(Math.random() * stories.length)];
+    if (pick) {
+      navigate({ to: "/stories/$slug", params: { slug: pick.slug } });
+    }
+  };
 
   const slide = heroSlides[index] ?? heroSlides[0]!;
 
@@ -44,14 +64,14 @@ export function Hero() {
               </Link>
             </SWButton>
             <SWButton
-              asChild
+              type="button"
+              onClick={handleSurprise}
               variant="secondary"
               size="md"
-              className="md:h-12 md:px-6 lg:h-13 lg:px-7"
+              className="group md:h-12 md:px-6 lg:h-13 lg:px-7 hover:bg-primary hover:text-primary-foreground hover:border-primary"
             >
-              <Link to="/watch">
-                <Play className="size-4" /> Watch Stories
-              </Link>
+              <SurpriseIcon />
+              <span>Surprise Me</span>
             </SWButton>
           </div>
         </div>
