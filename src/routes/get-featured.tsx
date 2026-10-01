@@ -16,6 +16,9 @@ import { toast } from "sonner";
 import { PageShell } from "@/components/sw/page-shell";
 import { images } from "@/lib/content";
 import { cn } from "@/lib/utils";
+import card1Image from "@/assets/6108688c-b63b-4d09-bd2b-581d628c690b.jpeg";
+import card2Image from "@/assets/34a74818-eece-4f9c-8bae-82f97f14a850 (1).jpeg";
+import card3Image from "@/assets/e53a21dc-5b6b-498f-b3f6-ef6003f2be8a.jpeg";
 
 type TrackKey = "purpose" | "stage" | "unfiltered";
 
@@ -48,8 +51,14 @@ const tracks = [
     key: "purpose" as TrackKey,
     title: "Driven by Purpose",
     eyebrow: "Company Feature",
+    heroTag: "Track 01 · Built from Purpose",
+    heroQuote: "“Some startups are built from purpose.”",
+    heroDetail:
+      "Tell your company's story in your way. Submit a complete feature detailing your foundational purpose, milestones, product philosophy, and what makes your startup worth knowing.",
+    editorialHighlight:
+      "100% Founder-First · Direct Publication after Review · Zero Editorial Paywalls",
     icon: Rocket,
-    image: images.storyFeatured,
+    image: card1Image,
     ctaLabel: "Submit Story & Visuals",
     formHeading: "Driven by Purpose Submission",
     tagline: "Submit a complete company feature detailing your mission, milestones, and journey.",
@@ -61,8 +70,13 @@ const tracks = [
     key: "stage" as TrackKey,
     title: "Stage Behind the Story",
     eyebrow: "Curated Interview",
+    heroTag: "Track 02 · Built from Moments Nobody Sees",
+    heroQuote: "“Some startups are built from the moments nobody sees.”",
+    heroDetail:
+      "Behind every founder story is a version nobody sees. Dive into the human side of entrepreneurship: the decisions, struggles, turning points, and moments that shaped your journey.",
+    editorialHighlight: "Curated Interview · Deep-Dive Shortlist · Tailored Editorial Profile",
     icon: Theater,
-    image: images.founder2,
+    image: card2Image,
     ctaLabel: "Apply for Interview",
     formHeading: "Stage Behind the Story Application",
     tagline: "Dive into the unseen struggles, turning points, and human side of entrepreneurship.",
@@ -74,8 +88,13 @@ const tracks = [
     key: "unfiltered" as TrackKey,
     title: "Founders Unfiltered",
     eyebrow: "Rapid-Fire Q&A",
+    heroTag: "Track 03 · Built from Chaos",
+    heroQuote: "“Some startups are built from chaos.”",
+    heroDetail:
+      "Raw answers. Real founders. Minimal edits. Answer 11 direct, unfiltered questions in your own voice, published with zero PR censorship or corporate filters.",
+    editorialHighlight: "Zero PR Alterations · 100% Raw Founder Voice · Rapid-Fire Authenticity",
     icon: Mic2,
-    image: images.videoFeatured,
+    image: card3Image,
     ctaLabel: "Start Rapid Q&A",
     formHeading: "Founders Unfiltered Rapid Q&A",
     tagline: "A raw, minimal-edit Q&A series where founders answer direct questions.",
@@ -394,20 +413,36 @@ function GetFeaturedPage() {
                         All Pathways
                       </button>
 
-                      {/* Large Bold Title (badges completely removed on desktop and mobile) */}
-                      <h2 className="mt-6 text-3xl font-medium tracking-tight text-white sm:text-4xl lg:text-5xl">
+                      <div className="mt-6">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs label-mono text-accent backdrop-blur-sm">
+                          <span className="size-1.5 rounded-full bg-accent" />
+                          {activeTrackObj?.heroTag}
+                        </span>
+                      </div>
+
+                      {/* Large Bold Title */}
+                      <h2 className="mt-4 text-3xl font-medium tracking-tight text-white sm:text-4xl lg:text-5xl">
                         {activeTrackObj?.title}
                       </h2>
 
-                      <p className="mt-4 text-sm text-white/70 leading-relaxed max-w-sm">
-                        {activeTrackObj?.tagline}
+                      {/* Hero Section Quote Alignment */}
+                      <p className="mt-4 text-base italic font-serif text-accent/90">
+                        {activeTrackObj?.heroQuote}
+                      </p>
+
+                      <p className="mt-3 text-sm text-white/75 leading-relaxed max-w-sm">
+                        {activeTrackObj?.heroDetail}
                       </p>
                     </div>
 
-                    {/* Left footer note */}
-                    <div className="relative z-10 pt-12 text-xs text-white/50 border-t border-white/10 mt-12">
-                      <p className="font-medium text-white/80">Success Wikis Editorial</p>
-                      <p className="mt-1">Founder stories curated without PR filters or fees.</p>
+                    {/* Left footer note aligned with hero metrics */}
+                    <div className="relative z-10 pt-8 text-xs text-white/60 border-t border-white/10 mt-10">
+                      <p className="font-semibold text-white/90">
+                        {activeTrackObj?.editorialHighlight}
+                      </p>
+                      <p className="mt-1 text-[0.6875rem] text-white/50">
+                        Curated for 10K+ monthly founder readers on SuccessWikis.
+                      </p>
                     </div>
                   </div>
 
@@ -732,12 +767,16 @@ function GetFeaturedPage() {
                     {selectedTrack === "purpose" && step === 2 && (
                       <form onSubmit={handleNextStep} className="space-y-5">
                         <div className="border-b border-border/70 pb-3">
-                          <h4 className="text-sm font-semibold text-foreground">
-                            Submission Details
+                          <span className="label-mono text-[0.625rem] text-accent-foreground font-semibold">
+                            Track 01 · Built from Purpose
+                          </span>
+                          <h4 className="text-sm font-semibold text-foreground mt-1">
+                            Mission, Milestones &amp; Narrative
                           </h4>
                           <p className="text-xs text-muted-foreground">
-                            Share your journey, mission, milestones, and what makes your startup
-                            worth knowing.
+                            Some startups are built from purpose. Tell your company&apos;s story in
+                            your way — detailing your core problem, customer breakthrough, and
+                            milestones.
                           </p>
                         </div>
 
@@ -933,9 +972,15 @@ function GetFeaturedPage() {
                     {selectedTrack === "stage" && step === 2 && (
                       <form onSubmit={handleFinalSubmit} className="space-y-5">
                         <div className="border-b border-border/70 pb-3">
-                          <h4 className="text-sm font-semibold text-foreground">Interest Form</h4>
+                          <span className="label-mono text-[0.625rem] text-accent-foreground font-semibold">
+                            Track 02 · Built from Moments Nobody Sees
+                          </span>
+                          <h4 className="text-sm font-semibold text-foreground mt-1">
+                            The Unseen Turning Points (Interest Form)
+                          </h4>
                           <p className="text-xs text-muted-foreground">
-                            Help us understand the unseen struggles behind your brand.
+                            Behind every founder story is a version nobody sees. Help us unpack the
+                            decisions, struggles, and quiet turning points.
                           </p>
                         </div>
 
@@ -1040,11 +1085,15 @@ function GetFeaturedPage() {
                       <form onSubmit={handleFinalSubmit} className="space-y-6">
                         <div className="flex items-center justify-between border-b border-border/70 pb-3">
                           <div>
-                            <h4 className="text-sm font-semibold text-foreground">
+                            <span className="label-mono text-[0.625rem] text-accent-foreground font-semibold">
+                              Track 03 · Built from Chaos
+                            </span>
+                            <h4 className="text-sm font-semibold text-foreground mt-1">
                               11 Raw Founder Questions
                             </h4>
                             <p className="text-xs text-muted-foreground">
-                              Raw answers. Real founders. Zero content alteration.
+                              Some startups are built from chaos. Answer in your authentic voice
+                              with zero PR filters or alterations.
                             </p>
                           </div>
                           <span className="label-mono text-xs font-semibold text-accent-foreground bg-accent/20 px-2.5 py-1 rounded-full">
