@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Mic2, Play } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Mic2, Play } from "lucide-react";
 import { useState } from "react";
 import { Hero } from "@/components/sw/hero";
 import { BehindTheStory } from "@/components/sw/behind-the-story";
@@ -34,9 +34,32 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const [active, setActive] = useState("All");
+  const [cornerIndex, setCornerIndex] = useState(0);
+
   const filtered = active === "All" ? stories : stories.filter((s) => s.category === active);
   const featured = filtered[0] ?? stories[0]!;
-  const rest = filtered.slice(1);
+
+  // 4 items for the vertical recent stories list
+  const latestList =
+    filtered.length > 1
+      ? filtered.slice(1, 5)
+      : stories.filter((s) => s.slug !== featured.slug).slice(0, 4);
+
+  // 3 items for the Founders corner carousel
+  const cornerStories = [
+    stories[(cornerIndex + 0) % stories.length]!,
+    stories[(cornerIndex + 1) % stories.length]!,
+    stories[(cornerIndex + 2) % stories.length]!,
+  ];
+
+  const handleCornerPrev = () => {
+    setCornerIndex((prev) => (prev - 1 + stories.length) % stories.length);
+  };
+
+  const handleCornerNext = () => {
+    setCornerIndex((prev) => (prev + 1) % stories.length);
+  };
+
   const lead = videos[0]!;
 
   return (
@@ -46,56 +69,173 @@ function Home() {
       {/* Categories + editorial grid */}
       <section className="section-y">
         <div className="shell">
-          <div className="flex flex-wrap items-end justify-between gap-6">
+          <div>
             <h2 className="heading-lg">Explore stories</h2>
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {categories.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setActive(c)}
+                  className={cn(
+                    "h-9.5 rounded-full border px-4 text-sm transition-colors duration-300",
+                    active === c
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-background hover:border-accent hover:bg-accent",
+                  )}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
             <Link
               to="/stories"
-              className="label-mono flex items-center gap-1.5 hover:text-muted-foreground"
+              className="label-mono flex items-center gap-1.5 underline underline-offset-4 decoration-current transition-colors hover:text-accent"
             >
               All stories <ArrowRight className="size-3" />
             </Link>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-2">
-            {categories.map((c) => (
-              <button
-                key={c}
-                onClick={() => setActive(c)}
-                className={cn(
-                  "h-9.5 rounded-full border px-4 text-sm transition-colors duration-300",
-                  active === c
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-background hover:border-accent hover:bg-accent",
-                )}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
+          {/* Tier 1: Featured Story (wide) + Recent Stories list (compact vertical stack) */}
+          <div className="mt-12 grid items-stretch gap-8 lg:grid-cols-[1.6fr_1fr] lg:gap-10">
+            {/* Left: Featured story card with full image and overlay */}
+            <Link
+              to="/stories/$slug"
+              params={{ slug: featured.slug }}
+              className="group relative flex min-h-[380px] flex-col justify-end overflow-hidden rounded-3xl bg-ink shadow-s2 transition-transform duration-500 hover:-translate-y-0.5 sm:min-h-[440px] lg:min-h-[480px]"
+            >
+              <img
+                src={featured.image}
+                alt={featured.title}
+                loading="eager"
+                className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/45 to-transparent" />
 
-          <div className="mt-14 grid items-start gap-12 lg:grid-cols-[1.35fr_1fr] lg:gap-10">
-            <div>
-              <p className="label-mono mb-6 text-muted-foreground">Featured story</p>
-              <StoryCard story={featured} size="lg" />
-            </div>
-            <div>
-              <p className="label-mono mb-6 text-muted-foreground">Recent stories</p>
-              <div className="grid content-start gap-10">
-                {rest.slice(0, 2).map((s) => (
-                  <StoryCard key={s.slug} story={s} />
-                ))}
-                {rest.length === 0 && <SurpriseMe />}
+              <div className="relative z-10 p-6 sm:p-8 md:p-10">
+                <span className="inline-flex items-center gap-2 rounded-full bg-background/95 px-3.5 py-1 text-xs font-medium text-foreground backdrop-blur-md">
+                  <span className="size-1.5 rounded-full bg-accent" />
+                  Story of the Week
+                </span>
+
+                <h3 className="mt-4 text-2xl font-medium leading-tight text-white transition-colors group-hover:text-accent sm:text-3xl lg:text-[2rem]">
+                  {featured.title}
+                </h3>
+
+                <p className="mt-3 flex items-center gap-2 label-mono text-xs text-white/80">
+                  <span>{featured.author}</span>
+                  <span>·</span>
+                  <span>{featured.date}</span>
+                  <span>·</span>
+                  <span>{featured.readTime}</span>
+                </p>
+              </div>
+            </Link>
+
+            {/* Right: Recent stories vertical stack */}
+            <div className="flex flex-col justify-between">
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight text-foreground md:text-2xl">
+                  Recent stories
+                </h3>
+
+                <div className="mt-6 divide-y divide-border/60">
+                  {latestList.map((item) => (
+                    <Link
+                      key={item.slug}
+                      to="/stories/$slug"
+                      params={{ slug: item.slug }}
+                      className="group flex items-center gap-4 py-3.5 transition-colors first:pt-0 last:pb-0"
+                    >
+                      <div className="relative size-18 shrink-0 overflow-hidden rounded-lg bg-muted sm:size-20">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          loading="lazy"
+                          className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="line-clamp-2 text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-accent-foreground sm:text-[0.9375rem]">
+                          {item.title}
+                        </h4>
+                        <p className="mt-1.5 label-mono text-xs text-muted-foreground">
+                          {item.date} · {item.readTime}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {rest.length > 2 && (
-            <div className="mt-16 grid gap-12 border-t border-border pt-14 md:grid-cols-3">
-              {rest.slice(2, 5).map((s) => (
-                <StoryCard key={s.slug} story={s} />
+          {/* Tier 2: Founders corner with 3 cards & pagination arrows */}
+          <div className="mt-16 border-t border-border pt-12 md:mt-20 md:pt-14">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-2xl font-semibold tracking-tight text-foreground md:text-3xl">
+                  Founders corner
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCornerPrev}
+                  aria-label="Previous stories"
+                  className="flex size-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-foreground hover:bg-muted active:scale-95"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCornerNext}
+                  aria-label="Next stories"
+                  className="flex size-9 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-foreground hover:bg-muted active:scale-95"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-6 md:grid-cols-3 md:gap-7">
+              {cornerStories.map((story) => (
+                <Link
+                  key={story.slug}
+                  to="/stories/$slug"
+                  params={{ slug: story.slug }}
+                  className="group flex flex-col rounded-2xl border border-border/80 bg-card p-4 transition-all duration-300 hover:-translate-y-1 hover:border-foreground/30 hover:shadow-s2"
+                >
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-muted">
+                    <img
+                      src={story.image}
+                      alt={story.title}
+                      loading="lazy"
+                      className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="mt-4 flex items-center gap-2">
+                    <span className="size-1.5 rounded-full bg-accent" />
+                    <span className="label-mono text-xs text-muted-foreground">
+                      {story.category}
+                    </span>
+                  </div>
+                  <h4 className="mt-2 text-base font-semibold leading-snug text-foreground transition-colors group-hover:text-accent-foreground line-clamp-2">
+                    {story.title}
+                  </h4>
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                    {story.dek}
+                  </p>
+                  <div className="mt-4 border-t border-border/60 pt-3 label-mono text-xs text-muted-foreground">
+                    {story.date} · {story.readTime}
+                  </div>
+                </Link>
               ))}
             </div>
-          )}
+          </div>
         </div>
       </section>
 
@@ -242,7 +382,7 @@ function Home() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-accent-foreground" />
-                <span>1.5M+ monthly readers</span>
+                <span>10K+ monthly readers</span>
               </div>
             </div>
           </div>
